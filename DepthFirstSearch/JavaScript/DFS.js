@@ -1,6 +1,6 @@
-// Fully runnable code, along with test cases at https://codepen.io/sniper6/pen/KXrJqG/
+// Fully runnable code with tests at https://codepen.io/sniper6/pen/QqzYEa
 
-const BFS = (graph, source, target = -1) => {
+const DFS = (graph, source, target = -1) => {
   // Some error handling
   if (typeof graph.getNeighbors !== "function") {
     throw "Graph should implement a getNeighbors function";
@@ -8,21 +8,21 @@ const BFS = (graph, source, target = -1) => {
   if (typeof source !== "number") {
     throw "source should be a number";
   }
-  
-  const Q = [], // The queue that will be used
+
+  const stack = [], // The stack that will be used
     order = [], // Array to hold the order of visit. Mainly for unit testing
     visited = {}; // Keep track of visited vertices
-  
+
   let found = false;
-  Q.push(source);
+  stack.push(source);
   visited[source] = true;
-  while (Q.length !== 0) {
-    const currentVertex = Q.shift();
+  while (stack.length !== 0) {
+    const currentVertex = stack.pop();
     order.push(currentVertex);
     const neighbors = graph.getNeighbors(currentVertex);
     for (const neighbor of neighbors) {
       if (!visited[neighbor]) {
-        Q.push(neighbor);
+        stack.push(neighbor);
         visited[neighbor] = true;
         if (neighbor === target) {
           found = true;
@@ -65,7 +65,7 @@ const GraphFactory = (() => {
   };
 })();
 
-describe("BFS", () => {
+describe("DFS", () => {
   let graph = null;
 
   beforeEach(() => {
@@ -74,13 +74,13 @@ describe("BFS", () => {
 
   it("should throw error on bad graph", () => {
     expect(() => {
-      BFS({});
+      DFS({});
     }).toThrow("Graph should implement a getNeighbors function");
   });
 
   it("should throw error on no source vertex", () => {
     expect(() => {
-      BFS(graph);
+      DFS(graph);
     }).toThrow("source should be a number");
   });
 
@@ -88,8 +88,8 @@ describe("BFS", () => {
     graph.addEdge(0, 1);
     graph.addEdge(0, 3);
     graph.addEdge(1, 2);
-    expect(BFS(graph, 0, 3)).toEqual({
-      order: [0, 1, 3, 2],
+    expect(DFS(graph, 0, 3)).toEqual({
+      order: [0, 3, 1, 2],
       found: true
     });
   });
@@ -100,8 +100,8 @@ describe("BFS", () => {
     graph.addEdge(1, 3);
     graph.addEdge(3, 4);
     graph.addEdge(4, 2);
-    expect(BFS(graph, 0, 3)).toEqual({
-      order: [0, 1, 2, 3, 4],
+    expect(DFS(graph, 0, 3)).toEqual({
+      order: [0, 2, 4, 3, 1],
       found: true
     });
   });
@@ -111,10 +111,9 @@ describe("BFS", () => {
     graph.addEdge(0, 2, false);
     graph.addEdge(1, 3, false);
     graph.addEdge(3, 4, false);
-    graph.addEdge(3, 5, false);
     graph.addEdge(4, 2, false);
-    expect(BFS(graph, 0, 3)).toEqual({
-      order: [0, 1, 2, 3, 4, 5],
+    expect(DFS(graph, 0, 3)).toEqual({
+      order: [0, 2, 1, 3, 4],
       found: true
     });
   });
@@ -123,8 +122,8 @@ describe("BFS", () => {
     graph.addEdge(0, 1);
     graph.addEdge(0, 3);
     graph.addEdge(1, 2);
-    expect(BFS(graph, 0, 5)).toEqual({
-      order: [0, 1, 3, 2],
+    expect(DFS(graph, 0, 5)).toEqual({
+      order: [0, 3, 1, 2],
       found: false
     });
   });
